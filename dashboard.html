@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Generator API - Dashboard</title>
+    <style>
+        :root {
+            --color-primary: #3182ce;
+            --color-secondary: #2c5aa0;
+            --color-success: #38a169;
+            --color-danger: #e53e3e;
+            --color-warning: #d69e2e;
+            --color-bg: #f7fafc;
+            --color-surface: #ffffff;
+            --color-text: #2d3748;
+            --color-text-light: #718096;
+            --color-border: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+            color: white;
+            padding: 40px 0;
+            margin-bottom: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: var(--color-surface);
+            border-radius: 8px;
+            padding: 25px;
+            border: 1px solid var(--color-border);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .card h2 {
+            color: var(--color-primary);
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+
+        .card p {
+            color: var(--color-text-light);
+            margin-bottom: 20px;
+            font-size: 0.95em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.9em;
+            color: var(--color-text);
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--color-border);
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: var(--color-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--color-secondary);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--color-border);
+            color: var(--color-text);
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e0;
+        }
+
+        .btn-success {
+            background: var(--color-success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #2f855a;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert-success {
+            background: #c6f6d5;
+            color: #22543d;
+            border: 1px solid #9ae6b4;
+        }
+
+        .alert-error {
+            background: #fed7d7;
+            color: #742a2a;
+            border: 1px solid #fc8181;
+        }
+
+        .alert-info {
+            background: #bee3f8;
+            color: #2c5282;
+            border: 1px solid #90cdf4;
+        }
+
+        .loader {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .loader.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid var(--color-border);
+            border-top: 4px solid var(--color-primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-box {
+            background: var(--color-surface);
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid var(--color-primary);
+        }
+
+        .stat-label {
+            font-size: 0.85em;
+            color: var(--color-text-light);
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: var(--color-primary);
+        }
+
+        .templates {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .template-btn {
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            border: 2px solid var(--color-border);
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .template-btn:hover {
+            border-color: var(--color-primary);
+            background: rgba(49, 130, 206, 0.05);
+        }
+
+        .template-btn.active {
+            border-color: var(--color-primary);
+            background: var(--color-primary);
+            color: white;
+        }
+
+        .preview-link {
+            color: var(--color-primary);
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 10px;
+            display: inline-block;
+        }
+
+        .preview-link:hover {
+            text-decoration: underline;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--color-text-light);
+            font-size: 0.9em;
+            margin-top: 40px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--color-border);
+        }
+
+        .tab-btn {
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--color-text-light);
+            font-weight: 600;
+            position: relative;
+            transition: color 0.3s ease;
+        }
+
+        .tab-btn.active {
+            color: var(--color-primary);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--color-primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tabs {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📄 PDF Generator API</h1>
+            <p>Générez des PDFs documentaires professionnels powered par l'IA</p>
+        </header>
+
+        <div class="stats">
+            <div class="stat-box">
+                <div class="stat-label">PDFs générés</div>
+                <div class="stat-value" id="pdfCount">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Temps moyen</div>
+                <div class="stat-value" id="avgTime">--</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Dernière génération</div>
+                <div class="stat-value" id="lastGen">--</div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('generator')">Générateur</button>
+            <button class="tab-btn" onclick="switchTab('templates')">Templates</button>
+            <button class="tab-btn" onclick="switchTab('api')">API</button>
+        </div>
+
+        <div id="generator" class="tab-content active">
+            <div class="grid">
+                <div class="card">
+                    <h2>Générer un PDF</h2>
+                    
+                    <div class="alert alert-info" id="apiAlert">
+                        <strong>ℹ️ API Endpoint:</strong> POST /api/generate-pdf
+                    </div>
+
+                    <div class="form-group">
+                        <label>Type de document</label>
+                        <div class="templates">
+                            <div class="template-btn active" onclick="selectTemplate('llm-best-practices')">🤖 LLM Best Practices</div>
+                            <div class="template-btn" onclick="selectTemplate('api-guide')">🔌 API Guide</div>
+                            <div class="template-btn" onclick="selectTemplate('automation-guide')">⚙️ N8N Guide</div>
+                            <div class="template-btn" onclick="selectTemplate('tech-report')">📊 Tech Report</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Titre du document *</label>
+                        <input type="text" id="docTitle" placeholder="Ex: Les bonnes pratiques des LLM" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Description/Sous-titre</label>
+                        <input type="text" id="docDescription" placeholder="Ex: Un guide complet pour maîtriser les modèles de langage">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Points clés à développer (un par ligne)</label>
+                        <textarea id="docPoints" placeholder="Point 1&#10;Point 2&#10;Point 3"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Langue</label>
+                        <select id="docLanguage">
+                            <option value="fr">Français</option>
+                            <option value="en">English</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Utiliser l'IA pour générer le contenu</label>
+                        <select id="aiGeneration">
+                            <option value="false">Non (utiliser template)</option>
+                            <option value="true">Oui (Perplexity API)</option>
+                        </select>
+                    </div>
+
+                    <div class="button-group">
+                        <button class="btn-primary" onclick="generatePDF()">Générer PDF</button>
+                        <button class="btn-secondary" onclick="resetForm()">Réinitialiser</button>
+                    </div>
+
+                    <div class="loader" id="loader">
+                        <div class="spinner"></div>
+                        <p>Génération en cours... cela peut prendre 30-60 secondes</p>
+                    </div>
+
+                    <div class="alert alert-success" id="successAlert">
+                        <strong>✓ Succès!</strong> <span id="successMessage"></span>
+                        <a href="#" id="downloadLink" class="preview-link">Télécharger le PDF</a>
+                    </div>
+
+                    <div class="alert alert-error" id="errorAlert">
+                        <strong>✗ Erreur:</strong> <span id="errorMessage"></span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>Paramètres avancés</h2>
+                    
+                    <div class="form-group">
+                        <label>Auteur</label>
+                        <input type="text" id="author" placeholder="Votre nom ou entreprise" value="Emmanuel - Développeur Full Stack">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Nombre de pages cible</label>
+                        <input type="number" id="pageCount" min="5" max="50" value="18">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Style de couverture</label>
+                        <select id="coverStyle">
+                            <option value="gradient-blue">Gradient Bleu</option>
+                            <option value="gradient-purple">Gradient Violet</option>
+                            <option value="gradient-tech">Gradient Tech</option>
+                            <option value="minimalist">Minimaliste</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Couleur primaire (hex)</label>
+                        <input type="color" id="primaryColor" value="#3182ce">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Format papier</label>
+                        <select id="paperFormat">
+                            <option value="a4">A4</option>
+                            <option value="letter">Letter</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>API Perplexity Key (optionnel)</label>
+                        <input type="password" id="apiKey" placeholder="Laissez vide pour utiliser la clé serveur">
+                    </div>
+
+                    <p style="font-size: 0.85em; color: var(--color-text-light); margin-top: 20px;">
+                        💡 Les paramètres avancés permettent de personnaliser complètement l'apparence et le contenu du PDF généré.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div id="templates" class="tab-content">
+            <div class="card">
+                <h2>Templates disponibles</h2>
+                <div class="grid">
+                    <div class="card">
+                        <h3>🤖 LLM Best Practices</h3>
+                        <p>Guide complet sur les bonnes pratiques des modèles de langage. Couverture les aspects techniques, l'optimisation et l'éthique.</p>
+                        <button class="btn-primary" onclick="loadTemplate('llm-best-practices')">Charger</button>
+                    </div>
+                    <div class="card">
+                        <h3>🔌 API Integration Guide</h3>
+                        <p>Documentation pour intégrer des APIs externes. Inclut les patterns, gestion d'erreurs et bonnes pratiques.</p>
+                        <button class="btn-primary" onclick="loadTemplate('api-guide')">Charger</button>
+                    </div>
+                    <div class="card">
+                        <h3>⚙️ N8N Automation Guide</h3>
+                        <p>Guide d'utilisation de N8N pour l'automatisation. Workflows, triggeers et intégrations.</p>
+                        <button class="btn-primary" onclick="loadTemplate('automation-guide')">Charger</button>
+                    </div>
+                    <div class="card">
+                        <h3>📊 Technical Report</h3>
+                        <p>Template pour rapports techniques. Sections analyse, recommandations et conclusions.</p>
+                        <button class="btn-primary" onclick="loadTemplate('tech-report')">Charger</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="api" class="tab-content">
+            <div class="card">
+                <h2>Documentation API</h2>
+                
+                <h3>Endpoint: POST /api/generate-pdf</h3>
+                
+                <p><strong>Description:</strong> Génère un PDF professionnel de 18 pages avec couverture et mise en page.</p>
+
+                <h3>Paramètres (JSON):</h3>
+                <pre style="background: #f7fafc; padding: 15px; border-radius: 6px; overflow-x: auto;"><code>{
+  "title": "Les bonnes pratiques des LLM",
+  "description": "Guide complet pour maîtriser les modèles",
+  "template": "llm-best-practices",
+  "points": ["Point 1", "Point 2"],
+  "author": "Emmanuel",
+  "language": "fr",
+  "useAI": true,
+  "pageCount": 18,
+  "coverStyle": "gradient-blue",
+  "primaryColor": "#3182ce",
+  "apiKey": "sk-..." // optionnel
+}</code></pre>
+
+                <h3>Réponse (succès 200):</h3>
+                <pre style="background: #f7fafc; padding: 15px; border-radius: 6px; overflow-x: auto;"><code>{
+  "success": true,
+  "message": "PDF généré avec succès",
+  "filename": "document-1706292016.pdf",
+  "downloadUrl": "/download/document-1706292016.pdf",
+  "size": 1250000,
+  "generationTime": 45
+}</code></pre>
+
+                <h3>Exemple cURL:</h3>
+                <pre style="background: #f7fafc; padding: 15px; border-radius: 6px; overflow-x: auto;"><code>curl -X POST http://localhost:5000/api/generate-pdf \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "LLM Best Practices",
+    "template": "llm-best-practices",
+    "useAI": true
+  }'</code></pre>
+
+                <h3>Exemple Python:</h3>
+                <pre style="background: #f7fafc; padding: 15px; border-radius: 6px; overflow-x: auto;"><code>import requests
+
+response = requests.post('http://localhost:5000/api/generate-pdf', json={
+    'title': 'LLM Best Practices',
+    'template': 'llm-best-practices',
+    'useAI': True
+})
+
+pdf_url = response.json()['downloadUrl']</code></pre>
+            </div>
+        </div>
+
+        <footer>
+            <p>📦 PDF Generator API v1.0 | Développé par Emmanuel | Powered by Python + Flask</p>
+        </footer>
+    </div>
+
+    <script>
+        let selectedTemplate = 'llm-best-practices';
+        let generatedPDFs = [];
+
+        function selectTemplate(template) {
+            selectedTemplate = template;
+            document.querySelectorAll('.template-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function loadTemplate(template) {
+            const templates = {
+                'llm-best-practices': {
+                    title: 'Les bonnes pratiques des Large Language Models',
+                    description: 'Guide complet pour maîtriser les modèles de langage modernes',
+                    points: 'Comprendre les architectures Transformer\nOptimisation des prompts\nGestion du contexte et des tokens\nFine-tuning et adaptation\nÉvaluations et métriques\nSécurité et biais\nOptimisation des coûts\nIntégration dans les applications'
+                },
+                'api-guide': {
+                    title: 'Guide complet d\'intégration d\'APIs externes',
+                    description: 'Meilleures pratiques pour intégrer et gérer les APIs',
+                    points: 'Architecture des APIs REST\nAuthentification et sécurité\nGestion des erreurs robuste\nCaching et performance\nRate limiting et throttling\nDocumentation et versionning\nTesting des intégrations\nMonitoring et logging'
+                },
+                'automation-guide': {
+                    title: 'Automatisation professionnelle avec N8N',
+                    description: 'Construisez des workflows d\'automatisation puissants',
+                    points: 'Fondamentaux de N8N\nConnecteurs et intégrations\nTriggers et conditions\nTransformation de données\nGestion des erreurs\nScheduling avancé\nWebhooks et webhooks sortants\nMeilleures pratiques d\'automatisation'
+                },
+                'tech-report': {
+                    title: 'Rapport technique: Architecture et implémentation',
+                    description: 'Analyse complète d\'une solution technique',
+                    points: 'Contexte et objectifs\nArchitecture proposée\nChoix technologiques\nImplémentation détaillée\nTests et validation\nPerformances mesurées\nRecommandations\nConclusions et suite'
+                }
+            };
+
+            const template = templates[template];
+            if (template) {
+                document.getElementById('docTitle').value = template.title;
+                document.getElementById('docDescription').value = template.description;
+                document.getElementById('docPoints').value = template.points;
+                switchTab('generator');
+            }
+        }
+
+        async function generatePDF() {
+            const title = document.getElementById('docTitle').value.trim();
+            if (!title) {
+                showAlert('errorAlert', 'Le titre est requis');
+                return;
+            }
+
+            const payload = {
+                title: title,
+                description: document.getElementById('docDescription').value,
+                template: selectedTemplate,
+                points: document.getElementById('docPoints').value.split('\n').filter(p => p.trim()),
+                author: document.getElementById('author').value,
+                language: document.getElementById('docLanguage').value,
+                useAI: document.getElementById('aiGeneration').value === 'true',
+                pageCount: parseInt(document.getElementById('pageCount').value),
+                coverStyle: document.getElementById('coverStyle').value,
+                primaryColor: document.getElementById('primaryColor').value,
+                apiKey: document.getElementById('apiKey').value || undefined
+            };
+
+            showLoader(true);
+            hideAlert('successAlert');
+            hideAlert('errorAlert');
+
+            try {
+                const response = await fetch('/api/generate-pdf', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    generatedPDFs.push(result);
+                    document.getElementById('pdfCount').textContent = generatedPDFs.length;
+                    document.getElementById('lastGen').textContent = new Date().toLocaleTimeString('fr-FR');
+                    
+                    const downloadUrl = result.downloadUrl || `/download/${result.filename}`;
+                    document.getElementById('downloadLink').href = downloadUrl;
+                    document.getElementById('successMessage').textContent = `${result.message} (${(result.size / 1024 / 1024).toFixed(2)} MB)`;
+                    showAlert('successAlert');
+                } else {
+                    showAlert('errorAlert', result.error || 'Erreur de génération');
+                }
+            } catch (error) {
+                showAlert('errorAlert', `Erreur réseau: ${error.message}`);
+            } finally {
+                showLoader(false);
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('docTitle').value = '';
+            document.getElementById('docDescription').value = '';
+            document.getElementById('docPoints').value = '';
+            hideAlert('successAlert');
+            hideAlert('errorAlert');
+        }
+
+        function showAlert(id, message = '') {
+            const alert = document.getElementById(id);
+            if (message) {
+                alert.querySelector('span').textContent = message;
+            }
+            alert.classList.add('show');
+        }
+
+        function hideAlert(id) {
+            document.getElementById(id).classList.remove('show');
+        }
+
+        function showLoader(show) {
+            document.getElementById('loader').classList.toggle('show', show);
+        }
+
+        // Charger stats depuis localStorage
+        function updateStats() {
+            const stats = JSON.parse(localStorage.getItem('pdfStats') || '{"count": 0, "times": []}');
+            document.getElementById('pdfCount').textContent = stats.count;
+            if (stats.times.length > 0) {
+                const avg = Math.round(stats.times.reduce((a, b) => a + b) / stats.times.length);
+                document.getElementById('avgTime').textContent = `${avg}s`;
+            }
+        }
+
+        updateStats();
+    </script>
+</body>
+</html>
