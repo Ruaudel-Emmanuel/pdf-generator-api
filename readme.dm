@@ -300,12 +300,13 @@ For issues and questions:
 
 ## Version History
 
-### v1.0 (Current)
+### v1.1 (Current)
 - Initial release
 - PDF generation with AI support
 - Multiple templates
 - Statistics and cleanup
 
 ---
+
 
 Made with ❤️ by Emmanuel | Powered by Flask + Perplexity AI
