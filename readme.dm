@@ -10,7 +10,7 @@ Professional PDF generation service powered by Python/Flask and Perplexity AI.
 - ⚡ **Fast Generation**: Optimized PDF rendering with WeasyPrint
 - 🔒 **Secure**: API key stored server-side in .env
 - 📊 **Statistics**: Track PDF generation metrics
-- 🗂️ **Auto Cleanup**: Automatic removal files
+- 🗂️ **Auto Cleanup**: Automatic removal of old files
 
 ## Quick Start
 
@@ -310,4 +310,5 @@ For issues and questions:
 
 
 Made with ❤️ by Emmanuel | Powered by Flask + Perplexity AI
+
 
